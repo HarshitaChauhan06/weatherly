@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+
 import "./App.css";
 
 import {
@@ -13,7 +18,7 @@ import {
   Line,
   XAxis,
   YAxis,
- Tooltip,
+  Tooltip,
   ResponsiveContainer,
 } from "recharts";
 
@@ -25,7 +30,6 @@ function App() {
   const [forecast, setForecast] = useState([]);
   const [hourly, setHourly] = useState([]);
 
-  // 🌈 Weather Backgrounds
   const weatherBackgrounds = {
     Clear:
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=100&w=1920",
@@ -61,8 +65,8 @@ function App() {
       "https://images.unsplash.com/photo-1487621167305-5d248087c724?q=100&w=1920",
   };
 
-  // 🌤 Fetch Weather
-  const getWeather = async () => {
+  // 🌦 Weather Fetch
+  const getWeather = useCallback(async () => {
     try {
       const weatherRes = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
@@ -78,19 +82,17 @@ function App() {
 
       const forecastData = await forecastRes.json();
 
-      // 7 Days
       const dailyData = forecastData.list.filter((item) =>
         item.dt_txt.includes("12:00:00")
       );
 
       setForecast(dailyData.slice(0, 7));
 
-      // 24 Hours
       setHourly(forecastData.list.slice(0, 24));
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [city]);
 
   // 📍 Auto Location
   useEffect(() => {
@@ -113,9 +115,10 @@ function App() {
     );
   }, []);
 
-useEffect(() => {
-  getWeather();
-}, [city, getWeather]);
+  // 🌈 Weather Update
+  useEffect(() => {
+    getWeather();
+  }, [getWeather]);
 
   const background =
     weatherBackgrounds[weather?.weather?.[0]?.main] ||
@@ -131,7 +134,6 @@ useEffect(() => {
       <div className="overlay"></div>
 
       <div className="container">
-        {/* Logo */}
         <h1 className="logo">🌈 Weatherly</h1>
 
         {/* Search */}
@@ -143,17 +145,21 @@ useEffect(() => {
             onChange={(e) => setCity(e.target.value)}
           />
 
-          <button onClick={getWeather}>Search</button>
+          <button onClick={getWeather}>
+            Search
+          </button>
         </div>
 
-        {/* Main Weather */}
+        {/* Weather */}
         {weather && weather.main && (
           <>
             <div className="weather-card">
               <div>
                 <h2>{weather.name}</h2>
 
-                <h1>{Math.round(weather.main.temp)}°C</h1>
+                <h1>
+                  {Math.round(weather.main.temp)}°C
+                </h1>
 
                 <p>{weather.weather[0].main}</p>
               </div>
@@ -161,15 +167,20 @@ useEffect(() => {
               <div className="details">
                 <p>
                   <FaTemperatureHigh /> Feels{" "}
-                  {Math.round(weather.main.feels_like)}°
+                  {Math.round(
+                    weather.main.feels_like
+                  )}
+                  °
                 </p>
 
                 <p>
-                  <FaTint /> {weather.main.humidity}%
+                  <FaTint />{" "}
+                  {weather.main.humidity}%
                 </p>
 
                 <p>
-                  <FaWind /> {weather.wind.speed} km/h
+                  <FaWind />{" "}
+                  {weather.wind.speed} km/h
                 </p>
               </div>
             </div>
@@ -181,9 +192,14 @@ useEffect(() => {
 
             <div className="hourly-container">
               {hourly.map((item, index) => (
-                <div className="hour-card" key={index}>
+                <div
+                  className="hour-card"
+                  key={index}
+                >
                   <p>
-                    {new Date(item.dt_txt).toLocaleTimeString([], {
+                    {new Date(
+                      item.dt_txt
+                    ).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -191,7 +207,12 @@ useEffect(() => {
 
                   <FaCloudSun className="icon" />
 
-                  <h3>{Math.round(item.main.temp)}°</h3>
+                  <h3>
+                    {Math.round(
+                      item.main.temp
+                    )}
+                    °
+                  </h3>
                 </div>
               ))}
             </div>
@@ -203,9 +224,14 @@ useEffect(() => {
 
             <div className="forecast-container">
               {forecast.map((item, index) => (
-                <div className="forecast-card" key={index}>
+                <div
+                  className="forecast-card"
+                  key={index}
+                >
                   <h3>
-                    {new Date(item.dt_txt).toLocaleDateString(
+                    {new Date(
+                      item.dt_txt
+                    ).toLocaleDateString(
                       "en-US",
                       {
                         weekday: "short",
@@ -215,7 +241,12 @@ useEffect(() => {
 
                   <FaCloudSun className="icon" />
 
-                  <p>{Math.round(item.main.temp)}°C</p>
+                  <p>
+                    {Math.round(
+                      item.main.temp
+                    )}
+                    °C
+                  </p>
                 </div>
               ))}
             </div>
