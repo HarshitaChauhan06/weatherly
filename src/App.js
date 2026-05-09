@@ -113,9 +113,9 @@ function App() {
     );
   }, []);
 // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    getWeather();
-  }, [city]);
+useEffect(() => {
+  getWeather();
+}, [city]);
 
   const background =
     weatherBackgrounds[weather?.weather?.[0]?.main] ||
